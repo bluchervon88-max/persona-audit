@@ -1,0 +1,36 @@
+name: audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  smoke:
+    name: 冒烟测试 + 数据泄漏检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 语法检查（审计工具能跑）
+        run: node --check audit/audit-persona.mjs
+
+      - name: 语料基准能算出来
+        run: |
+          node audit/audit-persona.mjs --corpus examples/sample-corpus.txt | tee /tmp/corpus.txt
+          grep -q "语料基准" /tmp/corpus.txt
+
+      - name: JSON 输出格式正确
+        run: |
+          node audit/audit-persona.mjs --corpus examples/sample-corpus.txt --json > /tmp/corpus.json
+          node -e "const j=require('/tmp/corpus.json'); if(j.mode!=='corpus-only')process.exit(1); if(!j.corpus.n)process.exit(1);"
+
+      - name: 表情包脚本语法正确
+        run: python3 -m py_compile scripts/make-stickers.py
+
+      - name: 检查有没有泄漏个人数据 / 密钥
+        run: bash scripts/check-pii.sh

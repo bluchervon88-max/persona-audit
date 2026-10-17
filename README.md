@@ -1,8 +1,13 @@
 # persona-audit
 
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![node](https://img.shields.io/badge/node-%E2%89%A520-brightgreen.svg)](https://nodejs.org)
+[![audit](https://img.shields.io/badge/audit-7%20metrics-informational.svg)](audit/audit-persona.mjs)
+[![pii](https://img.shields.io/badge/PII%20check-passing-brightgreen.svg)](scripts/check-pii.sh)
+
 > 给 AI 人格做**可量化的质量审计**，以及把这套东西接到国内 IM（微信 / 飞书 / OpenClaw）上时会踩的坑。
 
-[English summary](#english-summary) · [快速开始](#快速开始) · [文档](#文档)
+[English](README.en.md) · [快速开始](#快速开始) · [文档](#文档) · [案例](#一个真实案例)
 
 ---
 
@@ -23,6 +28,30 @@
 ```
 
 有了这组数字，"调人格"就变成了"改一个指标、跑一次审计、看数字降了没有"。
+
+---
+
+## 一个真实案例
+
+我们给一个具体角色做过完整调优。下面只有数字和改法，不涉及任何真实内容。
+
+**起点**：凭感觉写的人格，用户反馈"根本不像她"。
+
+**做法**：先把语料从约 300 条扩到约 1500 条（覆盖近一年的聊天），再跑审计逐项比。
+
+| 轮次 | 改了什么 | 逗号率 | ≤5字短句 | 用户反馈 |
+|---|---|---|---|---|
+| v1 | 凭感觉写 | 56% | 40% | "不像，太软了" |
+| v2 | 规则提到最高优先级层 + ✅/❌ 对照 | **0%** | 50% | "好多了" |
+| v3 | 加"态度摆动"层（写进 2.7:1 比例） | 0% | 51% | "终于像了" |
+
+三次关键修正，每次都是**先量再改**：
+
+1. **逗号** — 抽象规则无效（56% 不动），改成"规则 + 对错例子 + 为什么重要"后归零
+2. **态度** — 模糊的"嘴硬心软"模型理解不了，数出 81:30 的比例写成硬约束才生效
+3. **出戏** — 改提示词无效，根因是历史记录里有三条自发言论，改掉记录立刻恢复
+
+> 完整过程：见 [design-lessons.md](docs/design-lessons.md)。
 
 ---
 
@@ -87,14 +116,14 @@ node audit/audit-persona.mjs \
 
 ---
 
-## English summary
+## English
 
-A toolkit for **measuring** whether a generated AI persona actually talks like its source material, plus field notes from wiring OpenClaw agents into WeChat (iLink) and Feishu.
+完整英文版：[**README.en.md**](README.en.md)
 
-Instead of "does it feel right?", it compares statistical fingerprints — punctuation habits, sentence-length distribution, catch-phrase density, character-breaking patterns — between the real corpus and the model output.
-
-Contains: the audit tool, design lessons, IM-integration gotchas, templates, and generic utilities.
-Does **not** contain: any real person's data, or any chat-scraping tool.
+A toolkit for **measuring** whether a generated AI persona actually talks like its source
+material, plus field notes from wiring OpenClaw agents into WeChat (iLink) and Feishu.
+It compares statistical fingerprints — punctuation habits, sentence-length distribution,
+character-breaking patterns — instead of relying on vibes.
 
 ---
 

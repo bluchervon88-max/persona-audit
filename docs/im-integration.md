@@ -37,10 +37,10 @@ openclaw plugins install @tencent-weixin/openclaw-weixin@2.4.10
 **键是裸的用户 id**：
 
 ```json
-{ "1234567890@im.wechat": "AARzJWAFAAABAAA..." }
+{ "<wxid>@im.wechat": "<context-token>" }
 ```
 
-发送时如果目标带了前缀（`user:1234567890@im.wechat`），**键对不上**，日志会打：
+发送时如果目标带了前缀（`user:<wxid>@im.wechat`），**键对不上**，日志会打：
 
 ```
 sendWeixinOutbound: contextToken missing for to=user:..., sending without context
