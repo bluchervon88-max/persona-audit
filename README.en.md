@@ -103,6 +103,7 @@ Three fixes, each **measured before changed**:
 | [design-lessons.md](docs/design-lessons.md) | Four counter-intuitive persona-design lessons |
 | [im-integration.md](docs/im-integration.md) | WeChat iLink / Feishu integration gotchas |
 | [proactive-delivery.md](docs/proactive-delivery.md) | How to make an agent message you *first*, and two dead ends |
+| [faq.md](docs/faq.md) | Common questions: "doesn't feel like her", breaking character, corpus size, voice, delivery failures |
 | [persona-template.md](templates/persona-template.md) | Layered persona skeleton |
 
 ---

@@ -95,6 +95,7 @@ node audit/audit-persona.mjs \
 | [design-lessons.md](docs/design-lessons.md) | 人格设计的四条反直觉经验 |
 | [im-integration.md](docs/im-integration.md) | 微信 iLink / 飞书接 OpenClaw 的踩坑记录 |
 | [proactive-delivery.md](docs/proactive-delivery.md) | "让 agent 主动找你"的投递架构与两个死胡同 |
+| [faq.md](docs/faq.md) | 常见问题：不像、出戏、语料多少够、语音、投递失败 |
 | [persona-template.md](templates/persona-template.md) | 人格文件骨架（分层结构） |
 
 ---
