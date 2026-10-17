@@ -1,0 +1,103 @@
+# persona-audit
+
+> 给 AI 人格做**可量化的质量审计**，以及把这套东西接到国内 IM（微信 / 飞书 / OpenClaw）上时会踩的坑。
+
+[English summary](#english-summary) · [快速开始](#快速开始) · [文档](#文档)
+
+---
+
+## 这个仓库解决什么问题
+
+做 AI 人格（聊天机器人角色）的项目，99% 靠"感觉像不像"来调。你改了提示词，觉得"好像更像了"，但到底哪里变了、变好了多少，说不清。
+
+**这个仓库把"像不像"变成可测量的数字。**
+
+做法：拿她的**真实语料**算出统计特征，再拿模型生成的回复算同样的特征，逐项对比。
+
+```
+指标              真实语料    生成结果    判定
+含中文逗号            3%        56%    ⚠ 19 倍偏差
+≤5 字短句            53%        40%    ⚠ 偏少
+>15 字长句            5%        13%    ⚠ 偏多
+出现"作为AI"           0%         0%    ✓
+```
+
+有了这组数字，"调人格"就变成了"改一个指标、跑一次审计、看数字降了没有"。
+
+---
+
+## 两个目标读者
+
+| 你是 | 从这里开始 |
+|---|---|
+| **做 AI 人格 / 数字分身的人** | [audit/](audit/) + [docs/design-lessons.md](docs/design-lessons.md) |
+| **想把 agent 接到微信/飞书的开发者** | [docs/im-integration.md](docs/im-integration.md) + [docs/proactive-delivery.md](docs/proactive-delivery.md) |
+
+---
+
+## 快速开始
+
+### 只算语料基准（不需要任何依赖）
+
+```bash
+node audit/audit-persona.mjs --corpus examples/sample-corpus.txt
+```
+
+输出她说话的各项统计特征 —— 这就是后面所有对比的基准。
+
+### 完整审计（需要 OpenClaw 网关）
+
+```bash
+node audit/audit-persona.mjs \
+  --corpus examples/sample-corpus.txt \
+  --battery examples/sample-battery.txt \
+  --session-key agent:main:audit \
+  --thinking low
+```
+
+逐题生成回复并对比，偏差超标时返回非零退出码（可以挂到 CI 上）。
+
+---
+
+## 文档
+
+| 文档 | 内容 |
+|---|---|
+| [design-lessons.md](docs/design-lessons.md) | 人格设计的四条反直觉经验 |
+| [im-integration.md](docs/im-integration.md) | 微信 iLink / 飞书接 OpenClaw 的踩坑记录 |
+| [proactive-delivery.md](docs/proactive-delivery.md) | "让 agent 主动找你"的投递架构与两个死胡同 |
+| [persona-template.md](templates/persona-template.md) | 人格文件骨架（分层结构） |
+
+---
+
+## 仓库里有什么、没有什么
+
+**有**：审计工具、方法论、平台踩坑、人格模板、表情包生成脚本（[scripts/make-stickers.py](scripts/make-stickers.py)）
+
+**没有**：任何真实人物的数据、语料、照片、生成的形象，以及**聊天记录抓取工具**。
+
+> 抓取工具刻意不开源。它是"从自己的手机导自己的聊天记录"，本身没问题；
+> 但同样一个工具，用来抓别人的记录就是另一回事了。这个决定不接受讨论。
+
+---
+
+## 一句话动机
+
+给一个人做数字画像，然后想办法让它诚实。
+
+---
+
+## English summary
+
+A toolkit for **measuring** whether a generated AI persona actually talks like its source material, plus field notes from wiring OpenClaw agents into WeChat (iLink) and Feishu.
+
+Instead of "does it feel right?", it compares statistical fingerprints — punctuation habits, sentence-length distribution, catch-phrase density, character-breaking patterns — between the real corpus and the model output.
+
+Contains: the audit tool, design lessons, IM-integration gotchas, templates, and generic utilities.
+Does **not** contain: any real person's data, or any chat-scraping tool.
+
+---
+
+## License
+
+MIT
