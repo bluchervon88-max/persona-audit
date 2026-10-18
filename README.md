@@ -55,6 +55,40 @@
 
 ---
 
+## 从「像」到「活着」
+
+第一版只解决"像不像"：用统计数据把说话方式校准。
+
+但调完之后还有个更大的问题 —— **它是一个每轮都会重置的演员。**
+
+```
+你：我感冒了          → 吃药没
+（第二天）
+你：还没好            → 你咋了          ← 她不记得了
+```
+
+所以第二版补的是**连续性**：
+
+| 层 | 解决什么 |
+|---|---|
+| 人格 | 她怎么说话 |
+| **长期记忆** | 她记得发生过什么（每天自动整理） |
+| **此刻状态** | 她现在什么处境、还有几天生日 |
+| **她的一天** | 她自己的日子，按真实时间解锁 |
+
+还有一件同样重要但几乎没人量的东西：**消息节奏**。
+
+真人每回合平均发 **1.99 条**，47.6% 的回合是连发 2 条以上。
+AI 默认每回合 1 条 —— **用词全对，读起来还是不像。**
+
+```bash
+node scripts/analyze-rhythm.mjs --file chat.txt
+```
+
+> 详见 [rhythm.md](docs/rhythm.md) 与 [continuity.md](docs/continuity.md)。
+
+---
+
 ## 两个目标读者
 
 | 你是 | 从这里开始 |
@@ -93,6 +127,9 @@ node audit/audit-persona.mjs \
 | 文档 | 内容 |
 |---|---|
 | [design-lessons.md](docs/design-lessons.md) | 人格设计的四条反直觉经验 |
+| [rhythm.md](docs/rhythm.md) | **消息节奏**：她一次说几句（1.99 条/回合，47.6% 连发） |
+| [continuity.md](docs/continuity.md) | **连续性**：让她有「昨天」的四层架构 |
+| [pitfalls.md](docs/pitfalls.md) | **五个会让角色崩掉的坑**（会话分裂、附件语法、推理泄漏……） |
 | [im-integration.md](docs/im-integration.md) | 微信 iLink / 飞书接 OpenClaw 的踩坑记录 |
 | [proactive-delivery.md](docs/proactive-delivery.md) | "让 agent 主动找你"的投递架构与两个死胡同 |
 | [faq.md](docs/faq.md) | 常见问题：不像、出戏、语料多少够、语音、投递失败 |

@@ -16,8 +16,10 @@ jobs:
         with:
           node-version: "20"
 
-      - name: 语法检查（审计工具能跑）
-        run: node --check audit/audit-persona.mjs
+      - name: 语法检查（所有脚本能跑）
+        run: |
+          node --check audit/audit-persona.mjs
+          node --check scripts/analyze-rhythm.mjs
 
       - name: 语料基准能算出来
         run: |
@@ -28,6 +30,11 @@ jobs:
         run: |
           node audit/audit-persona.mjs --corpus examples/sample-corpus.txt --json > /tmp/corpus.json
           node -e "const j=require('/tmp/corpus.json'); if(j.mode!=='corpus-only')process.exit(1); if(!j.corpus.n)process.exit(1);"
+
+      - name: 节奏分析器能在样例上跑通
+        run: |
+          node scripts/analyze-rhythm.mjs --file examples/sample-transcript.txt | tee /tmp/rhythm.txt
+          grep -q "每回合平均条数" /tmp/rhythm.txt
 
       - name: 表情包脚本语法正确
         run: python3 -m py_compile scripts/make-stickers.py

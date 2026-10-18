@@ -35,11 +35,37 @@ Now "tune the persona" becomes "change one metric, run the audit, watch the numb
 
 ---
 
+## From "resembling" to "living"
+
+v1 solved the *resemblance* problem: calibrate how it talks with statistics.
+
+v2 solves the *continuity* problem — **a persona with no memory is an actor that resets every turn.**
+
+| Layer | Solves |
+|---|---|
+| Persona | how it talks |
+| **Long-term memory** | what it remembers (consolidated nightly) |
+| **Current state** | where it is right now, how many days until its birthday |
+| **Its own day** | a life that unlocks in real time |
+
+And one thing almost nobody measures: **message rhythm.**
+
+Real people send **1.99 messages per turn**, and 47.6% of turns are 2+ messages.
+An AI sends exactly 1 by default — **perfect vocabulary, still reads wrong.**
+
+```bash
+node scripts/analyze-rhythm.mjs --file chat.txt
+```
+
+---
+
 ## Who this is for
 
 | You are | Start here |
 |---|---|
 | **Building an AI persona / digital portrait** | [audit/](audit/) + [design-lessons.md](docs/design-lessons.md) |
+| **Making it feel alive over time** | [rhythm.md](docs/rhythm.md) + [continuity.md](docs/continuity.md) |
+| **Debugging "why is it acting broken"** | [pitfalls.md](docs/pitfalls.md) |
 | **Connecting an agent to WeChat / Feishu** | [im-integration.md](docs/im-integration.md) + [proactive-delivery.md](docs/proactive-delivery.md) |
 
 ---
