@@ -87,6 +87,25 @@ node scripts/analyze-rhythm.mjs --file chat.txt
 
 > 详见 [rhythm.md](docs/rhythm.md) 与 [continuity.md](docs/continuity.md)。
 
+### 第三版：让她用「自己的」号
+
+微信 iLink 有个天花板：不能原生主动发消息，发不了语音，没有朋友圈。
+
+第三版换了一条路 —— **让一个真实的 QQ 号来当她的身体**：
+
+| 能力 | 微信 bot | 个人 QQ 号 |
+|---|---|---|
+| 主动发消息 | 靠 hook 硬绕 | ✅ 原生 |
+| 语音条 | ❌ | ✅ |
+| 戳一戳 / 撤回 | ❌ | ✅ |
+| 发说说 | ❌ | ✅ |
+| 自己的表情收藏 | ❌ | ✅ 63 张 |
+
+代价是灰产协议和封号风险。文档里把坑全写了 —— 包括三个必须打的补丁
+（其中一个：插件的工具代码**从来没被调用过**，整个文件是死代码）。
+
+> 详见 [qq-personal-account.md](docs/qq-personal-account.md)。
+
 ---
 
 ## 两个目标读者
@@ -130,6 +149,7 @@ node audit/audit-persona.mjs \
 | [rhythm.md](docs/rhythm.md) | **消息节奏**：她一次说几句（1.99 条/回合，47.6% 连发） |
 | [continuity.md](docs/continuity.md) | **连续性**：让她有「昨天」的四层架构 |
 | [pitfalls.md](docs/pitfalls.md) | **五个会让角色崩掉的坑**（会话分裂、附件语法、推理泄漏……） |
+| [qq-personal-account.md](docs/qq-personal-account.md) | **用个人 QQ 号接管人格**：NapCat + OneBot、说说、表情收藏、三个必打补丁 |
 | [im-integration.md](docs/im-integration.md) | 微信 iLink / 飞书接 OpenClaw 的踩坑记录 |
 | [proactive-delivery.md](docs/proactive-delivery.md) | "让 agent 主动找你"的投递架构与两个死胡同 |
 | [faq.md](docs/faq.md) | 常见问题：不像、出戏、语料多少够、语音、投递失败 |

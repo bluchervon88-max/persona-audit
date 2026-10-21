@@ -67,6 +67,7 @@ node scripts/analyze-rhythm.mjs --file chat.txt
 | **Making it feel alive over time** | [rhythm.md](docs/rhythm.md) + [continuity.md](docs/continuity.md) |
 | **Debugging "why is it acting broken"** | [pitfalls.md](docs/pitfalls.md) |
 | **Connecting an agent to WeChat / Feishu** | [im-integration.md](docs/im-integration.md) + [proactive-delivery.md](docs/proactive-delivery.md) |
+| **Giving it a real QQ account** | [qq-personal-account.md](docs/qq-personal-account.md) — NapCat + OneBot, Qzone, its own sticker collection, and three mandatory patches |
 
 ---
 

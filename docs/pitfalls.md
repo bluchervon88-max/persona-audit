@@ -200,6 +200,178 @@ new DatabaseSync(path, { readOnly: true })
 new DatabaseSync(path)
 ```
 
+
+
+---
+
+## 坑 6：插件里的工具代码是死的
+
+### 症状
+
+「AI 说它没有这个工具」「搜不到」「这个能力没给我开」。
+
+### 原因
+
+某个第三方插件自带完整的 `tools.js`，但**入口文件从来没调用注册函数**。
+
+我们在 `index.js` 顶部找到一行注释，写着：
+
+```
+不注册 Agent 工具，避免重复实现；Agent 回复时由 deliver 自动发送
+```
+
+**于是整个文件都是死代码。**
+
+### 修法
+
+```js
+import { registerTools } from "./tools.js";
+...
+api.registerChannel({ plugin: ... });
+registerTools(api);   // 加这一行
+```
+
+### 教训
+
+**别信插件的 README，看入口文件。** 文档里写的功能可能一行都没接上。
+
+---
+
+## 坑 7：注册工具被静默拒绝
+
+### 症状
+
+`api.registerTool` 不抛错、日志里没有失败、但 AI 就是看不到工具。
+
+### 原因
+
+OpenClaw 要求插件在 manifest 里**先声明**它要注册哪些工具：
+
+```json
+// openclaw.plugin.json
+{
+  "contracts": {
+    "tools": ["tool_a", "tool_b"]
+  }
+}
+```
+
+不声明的话，注册会被拒绝，**而且只写一行警告**：
+
+```
+[plugins] plugin must declare contracts.tools before registering agent tools
+```
+
+### 修法
+
+声明 + 重启。重启后那行警告消失，就说明生效了。
+
+### 教训
+
+**"注册没报错"不等于"注册成功"。** 要查网关日志里的 `[plugins]` 警告。
+
+---
+
+## 坑 8：cron / hook 触发的回合，工具是被限制的
+
+### 症状
+
+看第一个：**我拿 hook 测了五轮，全说"没有工具"，于是花了两个小时去修本来没坏的东西。**
+
+### 原因
+
+用 `POST /hooks/agent` 或者 cron 触发的回合，在网关日志里是：
+
+```
+message dispatch completed: channel=cron
+```
+
+**cron 通道的工具面是缩水的**，只有核心工具，没有插件工具。
+
+### 修法
+
+**测试"AI 有没有某个工具"，必须走真实通道**（让真人在聊天软件里发一句话），不能用 hook 代劳。
+
+### 教训
+
+**测试路径不同，结论可能完全相反。** 这就是为什么"我觉得应该是这个原因"最危险。
+
+---
+
+## 坑 9：连续重启网关 = 制造僵尸
+
+### 症状
+
+网关端口在监听、TCP 能连，但 HTTP 永远超时；日志里出现：
+
+```
+Another gateway (pid XXXX) already owns this state directory
+Gateway process is running but port 18789 is still free
+Gateway service is still starting after 90s
+```
+
+### 原因
+
+**网关启动要 3~5 分钟**（数据库校验、schema preflight、通道初始化）。
+
+如果你在这期间又点了一次重启：
+
+1. 新的实例起来抢状态目录
+2. **旧实例仍然占着 SQLite**（29 MB 的库写入很慢）
+3. 多个实例互相锁，全部卡死
+
+### 修法
+
+```powershell
+# 1. 停
+openclaw gateway stop
+# 2. 杀掉残留 node（保留你自己的守护进程）
+Get-CimInstance Win32_Process -Filter "Name='node.exe'" | ... Stop-Process
+# 3. 只起一个
+schtasks /run /tn "OpenClaw Gateway"
+# 4. 等 5 分钟，别碰
+```
+
+### 教训
+
+**重启不是"点一下就好"，是一次 5 分钟的操作。** 中途再点，等于把系统搞崩。
+
+---
+
+## 坑 10：补句机制写死了渠道
+
+### 症状
+
+在 QQ 上聊天，**微信里却收到她的回复**。
+
+### 原因
+
+"连发补句"的脚本里把渠道和收件人写死成微信：
+
+```js
+channel: "openclaw-weixin", to: "<微信 id>"
+```
+
+它监视的是**主会话**，看见新消息就补——不管这条消息是从哪个渠道来的。
+
+于是 QQ 上的对话，补句全跑到微信去了。
+
+### 修法
+
+**补句要跟着会话当前的渠道走**：
+
+```js
+function currentRoute() {
+  const e = JSON.parse(sessionEntry);
+  const r = e.delivery.route;
+  return { channel: r.channel, to: r.target.to, accountId: r.accountId };
+}
+```
+
+### 教训
+
+**任何"她主动发消息"的路径，都要读当前路由，不能写死。** 一旦多通道，写死的地方全是雷。
+
 ---
 
 ## 一条通用经验
