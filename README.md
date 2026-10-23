@@ -106,6 +106,59 @@ node scripts/analyze-rhythm.mjs --file chat.txt
 
 > 详见 [qq-personal-account.md](docs/qq-personal-account.md)。
 
+### 第四版：表达层 —— 会发表情包、发语音、戳一戳
+
+到第三版为止，她还是一个**只会打字的人**。
+
+真人聊天是这样的：一句话、一个表情包、再补一句、偶尔戳你一下。
+默认的 agent 只有"一句话"。
+
+给 agent 注册 `send_sticker` 工具没用 —— 实测她几乎不会主动调用。
+后来换了个思路：**让她在文本里写标记，发送层抽掉标记再动作。**
+
+```
+你：我数学考砸了
+她：你猜多少分 [[小黄脸:8]]
+    （3 秒后）
+她：[[戳一戳]]
+```
+
+| 能力 | 微信 bot | 个人 QQ 号（标记） |
+|---|---|---|
+| 语音条 | ❌ | ✅ `[[语音:…\|tired]]` |
+| 表情包 | ❌ | ✅ `[[表情包:无语]]` |
+| 小黄脸 | ❌ | ✅ `[[小黄脸:12]]` |
+| 戳一戳 | ❌ | ✅ `[[戳一戳]]` |
+
+频率很低（72 小时 244 条消息里，语音 11、表情包 4、戳一戳 3）——
+但**"会"比"多"重要**。
+
+> 详见 [signals.md](docs/signals.md)。
+
+同一时期她还学会了**按真实课表活**：上课不发主动消息、晚自习偶尔偷发一条、
+深夜回复慢到 8~20 秒。这一层让"她"从一个在线服务变成了一个有作息的人。
+
+> 详见 [living-schedule.md](docs/living-schedule.md)。
+
+---
+
+## 成本：一天 ¥1.5，失控一次 ¥7.63
+
+这一部分几乎没人写，但它是上面所有东西能不能长期跑下去的前提。
+
+真实的账单：
+
+| 项 | 数值 |
+|---|---|
+| 她一天 24 轮对话 | **≈ ¥1.5** |
+| 单次请求的 prompt | 84K~104K token（其中 85K 是 610 个工具定义） |
+| 一个跑失控的长会话（同一天） | **¥7.63** / 1098 次调用 |
+
+四个改法：工具搜索（610→288）、把每轮会变的字段挪到提示词末尾（缓存前缀）、
+"她选择不回"要记账（否则每 2 分钟重跑一次完整 agent）、单轮步数上限。
+
+> 详见 [cost-of-a-persona.md](docs/cost-of-a-persona.md)。
+
 ---
 
 ## 两个目标读者
@@ -148,8 +201,11 @@ node audit/audit-persona.mjs \
 | [design-lessons.md](docs/design-lessons.md) | 人格设计的四条反直觉经验 |
 | [rhythm.md](docs/rhythm.md) | **消息节奏**：她一次说几句（1.99 条/回合，47.6% 连发） |
 | [continuity.md](docs/continuity.md) | **连续性**：让她有「昨天」的四层架构 |
-| [pitfalls.md](docs/pitfalls.md) | **五个会让角色崩掉的坑**（会话分裂、附件语法、推理泄漏……） |
+| [pitfalls.md](docs/pitfalls.md) | **十二个会让角色崩掉的坑**（会话分裂、附件语法、推理泄漏、控制标记漏发……） |
 | [qq-personal-account.md](docs/qq-personal-account.md) | **用个人 QQ 号接管人格**：NapCat + OneBot、说说、表情收藏、三个必打补丁 |
+| [signals.md](docs/signals.md) | **表达层**：表情包 / 语音 / 戳一戳为什么不能用工具调用，改用文本标记 |
+| [living-schedule.md](docs/living-schedule.md) | **她的一天**：让主动消息跟着真实课表走（上课不发、自习偷发、深夜慢回） |
+| [cost-of-a-persona.md](docs/cost-of-a-persona.md) | **成本**：一天 ¥1.5 是怎么来的，以及四个把它压下去的地方 |
 | [im-integration.md](docs/im-integration.md) | 微信 iLink / 飞书接 OpenClaw 的踩坑记录 |
 | [proactive-delivery.md](docs/proactive-delivery.md) | "让 agent 主动找你"的投递架构与两个死胡同 |
 | [faq.md](docs/faq.md) | 常见问题：不像、出戏、语料多少够、语音、投递失败 |

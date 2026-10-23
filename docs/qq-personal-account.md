@@ -74,9 +74,38 @@ $env:NAPCAT_MAIN_PATH     = "$shelf\napcat.mjs"
 & $env:NAPCAT_LAUNCHER_PATH $qq $env:NAPCAT_INJECT_PATH
 ```
 
-### 第二个坑：每次重启都要扫码
+### 第二个坑：重启后不一定能免扫码
 
-NapCat 重启后会重新要求扫码，除非传 `-q <QQ号>` 走快速登录。
+NapCat 重启后如果 QQ 里没有保存会话，就得重新扫码。
+
+网上流传的 `-q <QQ号>`（快速登录）**在我们这里不成立**：
+
+```
+传了 -q 之后 NapCatWinBootMain 直接退出，QQ 根本没起来
+```
+
+**更糟的是手动补救**：不通过 NapCat 的启动器、直接起 Shell 版 QQ，
+QQ 会弹「文件已被损坏，请重新安装QQ」。
+
+> **千万别重装。** 那个提示是注入环境变量缺失导致的，不是真损坏；
+> 重装会丢掉已经登录的会话，从此只能扫码。
+
+正确的恢复方式是让计划任务重新走完整启动链：
+
+```powershell
+Start-ScheduledTask -TaskName "NapCat Autostart"
+# 然后等 4~5 分钟，让网关也起来
+```
+
+### 第三个坑：想知道"她上线了吗"，别看进程
+
+QQ 进程有 4 个、WebUI 也在跑，但 **3001 端口可能是关的** —— 那就是她"聋了"。
+
+```powershell
+Get-NetTCPConnection -LocalPort 3001 -State Listen
+```
+
+没有 listener = OneBot 没起来 = 收不到也发不出。进程在不在没有意义。
 
 ---
 
@@ -112,6 +141,41 @@ webui.json                 ← WebUI 令牌
 ```
 
 改完要重启 NapCat。
+
+---
+
+### 用 WebUI API 查登录状态（省得一直盯窗口）
+
+NapCat 的 WebUI（默认 6099）有一套 HTTP API，**只接受 POST**（GET 全 404）。
+
+```js
+// 1) 换 Credential：sha256(<webui token> + ".napcat")
+const hash = sha256(token + ".napcat");
+POST /api/auth/login  {"hash": hash}
+// → {"data": {"Credential": "..."}}
+
+// 2) 之后每个请求都带
+Authorization: Bearer <Credential>
+
+// 3) 有没有登进去
+POST /api/QQLogin/GetQQLoginInfo
+// → {"uid":"","uin":"","nick":""}   ← 全空 = 还没登录
+
+// 4) 有没有可快速登录的会话
+POST /api/QQLogin/GetQuickLoginList
+// → []   ← 空 = 必须扫码，任何"免扫码"办法都没用
+
+// 5) 重新要一张登录二维码
+POST /api/QQLogin/GetQQLoginQrcode
+// → {"data":{"qrcode":"https://txz.qq.com/p?k=…"}}
+```
+
+**别对着 WebUI 页面截图再放大** —— 页面里的二维码是缓存，可能已经过期；
+用 API 拿 `qrcode` 链接自己渲染，或者直接从窗口缓存
+（`shelf/cache/qrcode.png`）取最新那张。
+
+`webui.json` 里的 `"autoLoginAccount": "<QQ号>"` **只在你已经存过会话时有用**。
+`GetQuickLoginList` 返回 `[]` 的时候，这一行什么都救不了。
 
 ---
 

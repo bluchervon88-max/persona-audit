@@ -130,6 +130,9 @@ Three fixes, each **measured before changed**:
 | [design-lessons.md](docs/design-lessons.md) | Four counter-intuitive persona-design lessons |
 | [im-integration.md](docs/im-integration.md) | WeChat iLink / Feishu integration gotchas |
 | [proactive-delivery.md](docs/proactive-delivery.md) | How to make an agent message you *first*, and two dead ends |
+| [signals.md](docs/signals.md) | **Expression layer**: stickers / voice / nudges — why tool calls fail and inline markers work |
+| [living-schedule.md](docs/living-schedule.md) | **Her day**: proactive messages that follow a real school timetable |
+| [cost-of-a-persona.md](docs/cost-of-a-persona.md) | **Cost**: what a live persona costs per day (≈¥1.5) and the four things that blow it up |
 | [faq.md](docs/faq.md) | Common questions: "doesn't feel like her", breaking character, corpus size, voice, delivery failures |
 | [persona-template.md](templates/persona-template.md) | Layered persona skeleton |
 
